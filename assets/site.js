@@ -2,7 +2,7 @@
    site.js — shared helpers for all pages
    ============================================================ */
    
-   export const _VERSION = "1.0.0";
+   export const _VERSION = "1.0.0a";
    
 /**
  *
@@ -28,7 +28,7 @@ export function startOrbBackground(opts = {}) {
 		sizeMin: 260,
 		sizeMax: 560,
 
-		// IMPORTANT: base size is constant; we animate scale instead
+		// IMPORTANT: base size is constant; animate scale instead
 		baseSizePx: 560,
 
 		durMinMs: 5000,
@@ -134,7 +134,7 @@ export function startOrbBackground(opts = {}) {
 		const dur = randi(cfg.durMinMs, cfg.durMaxMs);
 		const blur = randi(cfg.blurMin, cfg.blurMax);
 
-		// Use viewport units so we can do transform translate without layout
+		// Use viewport units
 		const x = randPct(); // in vw
 		const y = randPct(); // in vh
 
@@ -507,7 +507,6 @@ export function loadAppSettings(defaults = getDefaultAppSettings()) {
 		const parsed = _safeParseJson(raw);
 		if (!parsed) return structuredClone(defaults);
 
-		// Shallow merge is fine since we control shape
 		const merged = structuredClone(defaults);
 		if (parsed.themeVars && typeof parsed.themeVars === "object") {
 			merged.themeVars = {
@@ -558,7 +557,7 @@ export function applyAppSettings(settingsObj) {
 	// If user explicitly disables motion, enforce it
 	document.documentElement.classList.toggle("reduceMotion", !!s.reduceMotion);
 
-	// If reduceMotion is on, we also treat orbs as disabled
+	// If reduceMotion is on, treat orbs as disabled
 	const orbsEnabled = !!(s.orbs?.enabled) && !s.reduceMotion;
 	document.documentElement.classList.toggle("orbsOff", !orbsEnabled);
 

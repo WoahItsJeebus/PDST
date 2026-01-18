@@ -18,30 +18,29 @@
 	<body>
 		<div class="wrap">
 			<header>
-				<div>
+				<div style="text-align: center;">
 					<h1>PDST — PLS DONATE Shop Timer</h1>
-					<div class="sub" id="headerDesc" style="text-align: center;">
+					<div class="sub" id="headerDesc">
 						Resets every <code class="inline">3 days</code> at <code class="inline">00:00 UTC</code>.
 					</div>
 				</div>
-				
 			</header>
 
-			<!-- Toolbar: scrolls on narrow screens + fades only when overflow exists -->
-			<div class="toolbar hScroll fadeScroll" id="toolbarScroll" style="margin-bottom: 14px;">
-				<div class="pill" id="nowPill">Now: —</div>
-				<div class="pill" id="localTzPill">Local TZ: —</div>
-				<div class="pill" id="resetTzPill">Reset TZ: —</div>
+			<div id="toolbarFade" class="fadeScroll" style="margin-bottom:14px;">
+				<div class="toolbar hScroll" id="toolbarScroll">
+					<div class="pill" id="nowPill">Now: —</div>
+					<div class="pill" id="localTzPill">Local TZ: —</div>
+					<div class="pill" id="resetTzPill">Reset TZ: —</div>
+				</div>
 			</div>
 
 			<div class="grid">
-				<section class="card">
+				<section class="card span2" style="width:100%;">
 					<div class="head">
 						<div class="title"><span class="statusDot" id="shopDot"></span>Shop Reset</div>
 						<div class="tag">COUNTDOWN</div>
 					</div>
 
-					<!-- Table scroll + fades only when overflow exists -->
 					<div class="fadeWrap fadeScroll" id="shopFade">
 						<div class="tableScroll" id="shopScroll">
 							<table>
@@ -64,8 +63,8 @@
 				<code class="inline" id="versionCode">v—</code>
 			</div>
 
-			<div class="tabsBar">
-				<nav class="tabs" style="align-items: center;">
+			<div class="tabsBar" style="width:100%;">
+				<nav class="tabs" style="align-items:center;">
 					<a class="tabBtn active" data-tab="timers" href="./"><span class="tabDot"></span> Timers</a>
 					<a class="tabBtn" data-tab="about" href="./pages/about/"><span class="tabDot"></span> About</a>
 					<a class="tabBtn" data-tab="settings" href="./pages/settings/"><span class="tabDot"></span> Settings</a>
@@ -76,17 +75,10 @@
 		<script>
 			// PDST reset rules
 			const RESET_TZ = "UTC";
-			const CYCLE_DAYS = 4;
+			const CYCLE_DAYS = 4; // change to 3 when confirmed
 			const CYCLE_MS = CYCLE_DAYS * 86400 * 1000;
 
-			/**
-			 * IMPORTANT:
-			 * Replace ANCHOR_UTC with a known *real* shop reset timestamp in UTC.
-			 * It MUST be exactly at 00:00:00Z (midnight UTC) for clean cycles.
-			 *
-			 * Example:
-			 * const ANCHOR_UTC = "2026-01-15T00:00:00Z";
-			 */
+			// Replace with a known real reset moment at 00:00:00Z
 			const ANCHOR_UTC = "2026-01-14T00:00:00Z";
 
 			const LOCAL_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || "Local";
@@ -131,7 +123,6 @@
 			}
 
 			function fmtLocal(d){
-				// Keep this stable and readable (no locale weirdness)
 				const parts = new Intl.DateTimeFormat("en-US", {
 					timeZone: LOCAL_TZ,
 					year:"numeric", month:"2-digit", day:"2-digit",
@@ -157,12 +148,9 @@
 			}
 
 			function computeNextReset(nowMs, anchorMs){
-				// If anchor is in the future, "next" is just anchor.
 				if (nowMs <= anchorMs) return anchorMs;
-
-				// k = smallest integer such that anchor + k*cycle > now
 				const elapsed = nowMs - anchorMs;
-				const k = Math.floor(elapsed / CYCLE_MS) + 1;
+				const k = Math.floor(elapsed / CYCLE_MS) + 1; // smallest k where anchor+k*cycle > now
 				return anchorMs + (k * CYCLE_MS);
 			}
 
@@ -173,7 +161,7 @@
 				nowPill.textContent = `Now: ${now.toLocaleString(undefined, { hour12:false })}`;
 				localTzPill.textContent = `Local TZ: ${LOCAL_TZ}`;
 				resetTzPill.textContent = `Reset TZ: ${RESET_TZ}`;
-				headerDesc.textContent = `Resets every ${CYCLE_DAYS} days at 00:00 UTC.`;
+				headerDesc.innerHTML = `Resets every <code class="inline">${CYCLE_DAYS} days</code> at <code class="inline">00:00 UTC</code>.`;
 
 				shopBody.textContent = "";
 
@@ -216,21 +204,22 @@
 				_VERSION
 			} from "./assets/site.js";
 
-			// Version label
 			document.getElementById("versionCode").textContent = `v${_VERSION}`;
 
-			// Apply saved settings (theme + orbs toggles, etc.)
 			initAppSettings();
 
-			// Fade behavior (only attach what exists on this page)
 			const syncs = [];
+
+			// Table fade wrapper (correct: scroller + wrapper)
 			syncs.push(attachFadeToScroller(
 				document.getElementById("shopScroll"),
 				document.getElementById("shopFade")
 			));
+
+			// Toolbar fade wrapper (correct: scroller + wrapper)
 			syncs.push(attachFadeToScroller(
 				document.getElementById("toolbarScroll"),
-				document.getElementById("toolbarScroll")
+				document.getElementById("toolbarFade")
 			));
 
 			window.__syncFades = () => {
@@ -238,7 +227,6 @@
 			};
 			window.__syncFades();
 
-			// Orbs (use saved settings, with page defaults)
 			startOrbBackgroundFromSettings({ spawnEveryMs: 1600, sizeMin: 640, sizeMax: 1800 });
 
 			autoMarkActiveTab("timers");
