@@ -14,19 +14,25 @@
 	<body>
 		<div class="wrap">
 			<header>
-				<div>
+				<div style="text-align: center;">
 					<h1>PLS DONATE Shop Timer</h1>
 					<div class="sub">
 						This is a countdown timer for the rotating booth shop on <a href="https://www.roblox.com/games/8737602449/PLS-DONATE">PLS DONATE</a>.
 					</div>
 				</div>
 				<!-- Toolbar: scrolls on narrow screens + fades only when overflow exists -->
-				<div class="toolbar hScroll fadeScroll" id="toolbarScroll">
+				<!-- <div class="toolbar hScroll fadeScroll" id="toolbarScroll">
+				</div> -->
+			</header>
+			
+			<div class="fadeWrap fadeScroll" id="toolbarFade" style="margin-bottom: 12px;">
+				<div class="toolbar hScroll" id="toolbarScroll">
 					<div class="pill" id="nowPill">Now: —</div>
 					<div class="pill" id="localTzPill">Local TZ: —</div>
 					<div class="pill" id="resetTzPill">Reset TZ: —</div>
 				</div>
-			</header>
+			</div>
+
 			<div class="grid">
 				<section class="card" id="dailySection">
 					<div class="head">
