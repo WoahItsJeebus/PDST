@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+		<meta name="theme-color" content="#0b0f17">
+
+		<!-- iOS Add-to-Home-Screen / standalone -->
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<title>PDST — PLS DONATE Shop Timer</title>
+
+		<link rel="icon" href="favicon.ico" sizes="any">
+		<link rel="stylesheet" href="./assets/site.css">
+	</head>
+
+	<body>
+		<div class="wrap">
+			<header>
+				<div>
+					<h1>PDST — PLS DONATE Shop Timer</h1>
+					<div class="sub" id="headerDesc" style="text-align: center;">
+						Resets every <code class="inline">3 days</code> at <code class="inline">00:00 UTC</code>.
+					</div>
+				</div>
+				
+			</header>
+
+			<!-- Toolbar: scrolls on narrow screens + fades only when overflow exists -->
+			<div class="toolbar hScroll fadeScroll" id="toolbarScroll" style="margin-bottom: 14px;">
+				<div class="pill" id="nowPill">Now: —</div>
+				<div class="pill" id="localTzPill">Local TZ: —</div>
+				<div class="pill" id="resetTzPill">Reset TZ: —</div>
+			</div>
+
+			<div class="grid">
+				<section class="card">
+					<div class="head">
+						<div class="title"><span class="statusDot" id="shopDot"></span>Shop Reset</div>
+						<div class="tag">COUNTDOWN</div>
+					</div>
+
+					<!-- Table scroll + fades only when overflow exists -->
+					<div class="fadeWrap fadeScroll" id="shopFade">
+						<div class="tableScroll" id="shopScroll">
+							<table>
+								<thead>
+									<tr>
+										<th style="width:28%">Timer</th>
+										<th style="width:24%">Remaining</th>
+										<th style="width:24%">Next (Local)</th>
+										<!-- <th style="width:24%">Next (UTC)</th> -->
+									</tr>
+								</thead>
+								<tbody id="shopBody"></tbody>
+							</table>
+						</div>
+					</div>
+				</section>
+			</div>
+
+			<div class="footer">
+				<code class="inline" id="versionCode">v—</code>
+			</div>
+
+			<div class="tabsBar">
+				<nav class="tabs" style="align-items: center;">
+					<a class="tabBtn active" data-tab="timers" href="./"><span class="tabDot"></span> Timers</a>
+					<a class="tabBtn" data-tab="about" href="./pages/about/"><span class="tabDot"></span> About</a>
+					<a class="tabBtn" data-tab="settings" href="./pages/settings/"><span class="tabDot"></span> Settings</a>
+				</nav>
+			</div>
+		</div>
+
+		<script>
+			// PDST reset rules
+			const RESET_TZ = "UTC";
+			const CYCLE_DAYS = 4;
+			const CYCLE_MS = CYCLE_DAYS * 86400 * 1000;
+
+			/**
+			 * IMPORTANT:
+			 * Replace ANCHOR_UTC with a known *real* shop reset timestamp in UTC.
+			 * It MUST be exactly at 00:00:00Z (midnight UTC) for clean cycles.
+			 *
+			 * Example:
+			 * const ANCHOR_UTC = "2026-01-15T00:00:00Z";
+			 */
+			const ANCHOR_UTC = "2026-01-14T00:00:00Z";
+
+			const LOCAL_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || "Local";
+
+			// refs
+			const headerDesc = document.getElementById("headerDesc");
+			const shopBody = document.getElementById("shopBody");
+			const nowPill = document.getElementById("nowPill");
+			const localTzPill = document.getElementById("localTzPill");
+			const resetTzPill = document.getElementById("resetTzPill");
+			const shopDot = document.getElementById("shopDot");
+
+			function pad2(n){ return String(n).padStart(2, "0"); }
+
+			function escapeHtml(s){
+				return String(s).replace(/[&<>"']/g, c => ({
+					"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
+				}[c]));
+			}
+
+			function formatDuration(totalSec){
+				totalSec = Math.max(0, Math.floor(totalSec));
+				const days = Math.floor(totalSec / 86400);
+				totalSec %= 86400;
+				const hrs = Math.floor(totalSec / 3600);
+				totalSec %= 3600;
+				const mins = Math.floor(totalSec / 60);
+				const secs = totalSec % 60;
+				if (days > 0) return `${days}d ${pad2(hrs)}h ${pad2(mins)}m ${pad2(secs)}s`;
+				return `${pad2(hrs)}h ${pad2(mins)}m ${pad2(secs)}s`;
+			}
+
+			function urgencyDot(dotEl, remainingSec){
+				dotEl.classList.remove("warn","bad");
+				if (remainingSec <= 300) dotEl.classList.add("bad");        // <= 5 min
+				else if (remainingSec <= 3600) dotEl.classList.add("warn"); // <= 1 hour
+			}
+
+			function fmtUtc(d){
+				return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth()+1)}-${pad2(d.getUTCDate())} `
+					+ `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}:${pad2(d.getUTCSeconds())}`;
+			}
+
+			function fmtLocal(d){
+				// Keep this stable and readable (no locale weirdness)
+				const parts = new Intl.DateTimeFormat("en-US", {
+					timeZone: LOCAL_TZ,
+					year:"numeric", month:"2-digit", day:"2-digit",
+					hour:"2-digit", minute:"2-digit", second:"2-digit",
+					hour12:false
+				}).formatToParts(d);
+
+				const map = {};
+				for (const p of parts) if (p.type !== "literal") map[p.type] = p.value;
+
+				return `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}:${map.second}`;
+			}
+
+			function addRow(bodyEl, name, remainingStr, nextLocalStr, nextUtcStr){
+				const tr = document.createElement("tr");
+				tr.innerHTML = `
+					<td>${escapeHtml(name)}</td>
+					<td class="mono muted">${escapeHtml(remainingStr)}</td>
+					<td class="mono muted">${escapeHtml(nextLocalStr)}</td>
+					<!-- <td class="mono muted">${escapeHtml(nextUtcStr)}</td> -->
+				`;
+				bodyEl.appendChild(tr);
+			}
+
+			function computeNextReset(nowMs, anchorMs){
+				// If anchor is in the future, "next" is just anchor.
+				if (nowMs <= anchorMs) return anchorMs;
+
+				// k = smallest integer such that anchor + k*cycle > now
+				const elapsed = nowMs - anchorMs;
+				const k = Math.floor(elapsed / CYCLE_MS) + 1;
+				return anchorMs + (k * CYCLE_MS);
+			}
+
+			function render(){
+				const now = new Date();
+				const nowMs = now.getTime();
+
+				nowPill.textContent = `Now: ${now.toLocaleString(undefined, { hour12:false })}`;
+				localTzPill.textContent = `Local TZ: ${LOCAL_TZ}`;
+				resetTzPill.textContent = `Reset TZ: ${RESET_TZ}`;
+				headerDesc.textContent = `Resets every ${CYCLE_DAYS} days at 00:00 UTC.`;
+
+				shopBody.textContent = "";
+
+				const anchor = new Date(ANCHOR_UTC);
+				const anchorMs = anchor.getTime();
+
+				if (!Number.isFinite(anchorMs)){
+					addRow(shopBody, "Shop Reset", "CONFIG ERROR", "Invalid ANCHOR_UTC", "—");
+					shopDot.classList.add("bad");
+					return;
+				}
+
+				const nextMs = computeNextReset(nowMs, anchorMs);
+				const next = new Date(nextMs);
+
+				const remainingSec = Math.max(0, Math.floor((nextMs - nowMs) / 1000));
+				urgencyDot(shopDot, remainingSec);
+
+				addRow(
+					shopBody,
+					"Shop Reset",
+					formatDuration(remainingSec),
+					fmtLocal(next),
+					fmtUtc(next)
+				);
+
+				if (window.__syncFades) window.__syncFades();
+			}
+
+			render();
+			setInterval(render, 1000);
+		</script>
+
+		<script type="module">
+			import {
+				attachFadeToScroller,
+				autoMarkActiveTab,
+				initAppSettings,
+				startOrbBackgroundFromSettings,
+				_VERSION
+			} from "./assets/site.js";
+
+			// Version label
+			document.getElementById("versionCode").textContent = `v${_VERSION}`;
+
+			// Apply saved settings (theme + orbs toggles, etc.)
+			initAppSettings();
+
+			// Fade behavior (only attach what exists on this page)
+			const syncs = [];
+			syncs.push(attachFadeToScroller(
+				document.getElementById("shopScroll"),
+				document.getElementById("shopFade")
+			));
+			syncs.push(attachFadeToScroller(
+				document.getElementById("toolbarScroll"),
+				document.getElementById("toolbarScroll")
+			));
+
+			window.__syncFades = () => {
+				for (const fn of syncs) if (typeof fn === "function") fn();
+			};
+			window.__syncFades();
+
+			// Orbs (use saved settings, with page defaults)
+			startOrbBackgroundFromSettings({ spawnEveryMs: 1600, sizeMin: 640, sizeMax: 1800 });
+
+			autoMarkActiveTab("timers");
+		</script>
+	</body>
+</html>
