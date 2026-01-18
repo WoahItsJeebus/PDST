@@ -7,44 +7,35 @@
 		<!-- iOS Add-to-Home-Screen / standalone -->
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-		<title>PDST — PLS DONATE Shop Timer</title>
-
+		<title>PLS DONATE Shop Timer</title>
 		<link rel="icon" href="favicon.ico" sizes="any">
 		<link rel="stylesheet" href="./assets/site.css">
 	</head>
-
 	<body>
 		<div class="wrap">
 			<header>
 				<div>
-					<h1>PDST — PLS DONATE Shop Timer</h1>
-					<div class="sub" id="headerDesc">
-						Resets every <code class="inline">4 days</code> at <code class="inline">00:00 UTC</code>.
+					<h1>PLS DONATE Shop Timer</h1>
+					<div class="sub">
+						This is a countdown timer for the rotating booth shop on <a href="https://www.roblox.com/games/8737602449/PLS-DONATE">PLS DONATE</a>.
 					</div>
 				</div>
-
 				<!-- Toolbar: scrolls on narrow screens + fades only when overflow exists -->
-				<!-- IMPORTANT: wrapper must clip the fade on iOS (prevents the right-side "flap") -->
-				<div class="fadeWrap fadeScroll" id="toolbarFade">
-					<div class="toolbar hScroll" id="toolbarScroll">
-						<div class="pill" id="nowPill">Now: —</div>
-						<div class="pill" id="localTzPill">Local TZ: —</div>
-						<div class="pill" id="resetTzPill">Reset TZ: —</div>
-					</div>
+				<div class="toolbar hScroll fadeScroll" id="toolbarScroll">
+					<div class="pill" id="nowPill">Now: —</div>
+					<div class="pill" id="localTzPill">Local TZ: —</div>
+					<div class="pill" id="resetTzPill">Reset TZ: —</div>
 				</div>
 			</header>
-
 			<div class="grid">
-				<section class="card">
+				<section class="card" id="dailySection">
 					<div class="head">
-						<div class="title"><span class="statusDot" id="shopDot"></span>Shop Reset</div>
+						<div class="title"><span class="statusDot" id="dailyDot"></span>Daily</div>
 						<div class="tag">COUNTDOWN</div>
 					</div>
-
 					<!-- Table scroll + fades only when overflow exists -->
-					<div class="fadeWrap fadeScroll" id="shopFade">
-						<div class="tableScroll" id="shopScroll">
+					<div class="fadeWrap fadeScroll" id="dailyFade">
+						<div class="tableScroll" id="dailyScroll">
 							<table>
 								<thead>
 									<tr>
@@ -54,17 +45,102 @@
 										<!-- <th style="width:24%">Next (UTC)</th> -->
 									</tr>
 								</thead>
-								<tbody id="shopBody"></tbody>
+								<tbody id="dailyBody"></tbody>
+							</table>
+						</div>
+					</div>
+				</section>
+				<section class="card" id="weeklySection">
+					<div class="head">
+						<div class="title"><span class="statusDot" id="weeklyDot"></span>Weekly</div>
+						<div class="tag">COUNTDOWN</div>
+					</div>
+					<!-- Table scroll + fades only when overflow exists -->
+					<div class="fadeWrap fadeScroll" id="weeklyFade">
+						<div class="tableScroll" id="weeklyScroll">
+							<table>
+								<thead>
+									<tr>
+										<th style="width:28%">Timer</th>
+										<th style="width:24%">Remaining</th>
+										<th style="width:24%">Next (Local)</th>
+										<!-- <th style="width:24%">Next (UTC)</th> -->
+									</tr>
+								</thead>
+								<tbody id="weeklyBody"></tbody>
+							</table>
+						</div>
+					</div>
+				</section>
+
+				<section class="card span2" id="recurringSection">
+					<div class="head">
+						<div class="title"><span class="statusDot" id="recurringDot"></span>Recurring</div>
+						<div class="tag">COUNTDOWN</div>
+					</div>
+					<!-- Table scroll + fades only when overflow exists -->
+					<div class="fadeWrap fadeScroll" id="recurringFade">
+						<div class="tableScroll" id="recurringScroll">
+							<table>
+								<thead>
+									<tr>
+										<th style="width:28%">Timer</th>
+										<th style="width:24%">Remaining</th>
+										<th style="width:24%">Next (Local)</th>
+										<!-- <th style="width:24%">Next (UTC)</th> -->
+									</tr>
+								</thead>
+								<tbody id="recurringBody"></tbody>
+							</table>
+						</div>
+					</div>
+				</section>
+
+				<section class="card span2" id="tempSection">
+					<div class="head">
+						<div class="title"><span class="statusDot off" id="tempDot"></span>Limited Time</div>
+						<div class="tag">COUNTDOWN</div>
+					</div>
+					<div class="fadeWrap fadeScroll" id="tempFade">
+						<div class="tableScroll" id="tempScroll">
+							<table>
+								<thead>
+									<tr>
+										<th style="width:28%">Timer</th>
+										<th style="width:24%">Remaining</th>
+										<th style="width:24%">End (Local)</th>
+										<!-- <th style="width:24%">End (UTC)</th> -->
+									</tr>
+								</thead>
+								<tbody id="tempBody"></tbody>
+							</table>
+						</div>
+					</div>
+				</section>
+				<section class="card span2" id="endedSection">
+					<div class="head">
+						<div class="title"><span class="statusDot off" id="endedDot"></span>Ended</div>
+					</div>
+					<div class="fadeWrap fadeScroll" id="endedFade">
+						<div class="tableScroll" id="endedScroll">
+							<table>
+								<thead>
+									<tr>
+										<th style="width:28%">Timer</th>
+										<th style="width:24%">Remaining</th>
+										<th style="width:24%">End (Local)</th>
+										<!-- <th style="width:24%">End (UTC)</th> -->
+									</tr>
+								</thead>
+								<tbody id="endedBody"></tbody>
 							</table>
 						</div>
 					</div>
 				</section>
 			</div>
-
 			<div class="footer">
 				<code class="inline" id="versionCode">v—</code>
 			</div>
-
 			<div class="tabsBar">
 				<nav class="tabs" style="align-items: center;">
 					<a class="tabBtn active" data-tab="timers" href="./"><span class="tabDot"></span> Timers</a>
@@ -73,40 +149,84 @@
 				</nav>
 			</div>
 		</div>
-
 		<script>
-			// ===== PDST Reset Rules =====
-			// Resets every N days at 00:00 UTC.
-			const RESET_TZ = "UTC";
-			const CYCLE_DAYS = 4;                 // change to 3 when confirmed
-			const CYCLE_MS = CYCLE_DAYS * 86400 * 1000;
+			const RESET_TZ = "America/Chicago";
+			
+			/**
+			 * Timers:
+			 *  - "daily": repeats every day at wall-clock time in RESET_TZ
+			 *  - "weekly": repeats weekly at wall-clock time in RESET_TZ
+			 *      - day: 0..6 where 0=Sunday, 1=Monday, ... 6=Saturday
+			 *  - "recurring": repeats every N days from an anchor date/time (UTC)
+			 *      - anchorUtc: ISO string parseable by Date(), e.g. "2026-01-01T18:00:00Z"
+			 *        OR
+			 *      - anchorDate: "YYYY-MM-DD" + resetUtc: "HH:MM[:SS]" (combined in UTC)
+			 *      - everyDays: number of days between resets (e.g., 3)
+					 *  - "temp": one-off countdown to an end date/time
+			 *      - end: "YYYY-MM-DD HH:MM[:SS]" interpreted in (t.tz || RESET_TZ)
+			 *        OR
+			 *      - endUtc: ISO string parseable by Date(), e.g. "2026-02-01T18:00:00Z"
+			 *
+			 * Note: Temporary timers do NOT roll over — once the end time passes,
+			 *       the row stays visible and shows ENDED.
+			 */
+			const timers = [
+				// Example recurring timer (every 3 days, anchored in UTC)
+				{ name: "Shop Reset", kind: "recurring", anchorDate: "2026-01-01", resetUtc: "18:00:00", everyDays: 3, enabled: true },
 
-			// Anchor must be a known real reset at 00:00:00Z
-			// Example: "2026-01-14T00:00:00Z"
-			const ANCHOR_UTC = "2026-01-14T00:00:00Z";
 
+				// temporary timer:
+				// { name: "Event Ends", kind: "temp", end: "2026-01-31 11:00:00", tz: "America/Chicago", enabled: true },
+				// Or:
+				// { name: "Event Ends", kind: "temp", endUtc: "2026-01-31T18:00:00Z", enabled: true },
+			];
+			
 			// Local TZ
 			const LOCAL_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || "Local";
-
+			
 			// refs
-			const headerDesc = document.getElementById("headerDesc");
+			const dailyBody    = document.getElementById("dailyBody");
+			const weeklyBody   = document.getElementById("weeklyBody");
+			const tempBody     = document.getElementById("tempBody");
+			const endedBody     = document.getElementById("endedBody");
+			const recurringBody = document.getElementById("recurringBody");
 
-			const shopBody = document.getElementById("shopBody");
+			const nowPill      = document.getElementById("nowPill");
+			const localTzPill  = document.getElementById("localTzPill");
+			const resetTzPill  = document.getElementById("resetTzPill");
 
-			const nowPill = document.getElementById("nowPill");
-			const localTzPill = document.getElementById("localTzPill");
-			const resetTzPill = document.getElementById("resetTzPill");
+			const dailyDot     = document.getElementById("dailyDot");
+			const weeklyDot    = document.getElementById("weeklyDot");
+			const tempDot      = document.getElementById("tempDot");
+			const endedDot      = document.getElementById("endedDot");
+			const recurringDot  = document.getElementById("recurringDot");
 
-			const shopDot = document.getElementById("shopDot");
+			const tempSection      = document.getElementById("tempSection");
+			const endedSection     = document.getElementById("endedSection");
+			const recurringSection = document.getElementById("recurringSection");
+			const dailySection     = document.getElementById("dailySection");
+			const weeklySection    = document.getElementById("weeklySection");
 
+			const versionCode  = document.getElementById("versionCode");
+
+			// document.getElementById("refreshBtn").addEventListener("click", () => render(true));
+			
 			function pad2(n){ return String(n).padStart(2, "0"); }
-
 			function escapeHtml(s){
 				return String(s).replace(/[&<>"']/g, c => ({
 					"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
 				}[c]));
 			}
-
+			
+			function parseTime(s){
+				const parts = String(s||"").trim().split(":");
+				if (parts.length < 2 || parts.length > 3) return null;
+				const h = Number(parts[0]), m = Number(parts[1]), sec = parts.length === 3 ? Number(parts[2]) : 0;
+				if (![h,m,sec].every(Number.isFinite)) return null;
+				if (h<0||h>23||m<0||m>59||sec<0||sec>59) return null;
+				return {h,m,sec};
+			}
+			
 			function formatDuration(totalSec){
 				totalSec = Math.max(0, Math.floor(totalSec));
 				const days = Math.floor(totalSec / 86400);
@@ -118,34 +238,151 @@
 				if (days > 0) return `${days}d ${pad2(hrs)}h ${pad2(mins)}m ${pad2(secs)}s`;
 				return `${pad2(hrs)}h ${pad2(mins)}m ${pad2(secs)}s`;
 			}
-
-			function urgencyDot(dotEl, remainingSec){
+			
+			function urgencyDot(dotEl, minRemaining){
 				dotEl.classList.remove("warn","bad");
-				if (remainingSec <= 300) dotEl.classList.add("bad");        // <= 5 min
-				else if (remainingSec <= 3600) dotEl.classList.add("warn"); // <= 1 hour
+				if (minRemaining <= 300) dotEl.classList.add("bad");        // <= 5 min
+				else if (minRemaining <= 3600) dotEl.classList.add("warn"); // <= 1 hour
 			}
-
-			function fmtUtc(d){
-				return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth()+1)}-${pad2(d.getUTCDate())} `
-					+ `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}:${pad2(d.getUTCSeconds())}`;
-			}
-
-			function fmtLocal(d){
-				const parts = new Intl.DateTimeFormat("en-US", {
-					timeZone: LOCAL_TZ,
+			
+			/**
+			 * Timezone math helpers
+			 */
+			
+			function getZonedParts(dateUtc, timeZone){
+				const dtf = new Intl.DateTimeFormat("en-US", {
+					timeZone,
 					year:"numeric", month:"2-digit", day:"2-digit",
 					hour:"2-digit", minute:"2-digit", second:"2-digit",
-					hour12:false
-				}).formatToParts(d);
-
+					hour12:false,
+					weekday:"short",
+				});
+				const parts = dtf.formatToParts(dateUtc);
 				const map = {};
-				for (const p of parts) if (p.type !== "literal") map[p.type] = p.value;
-
-				return `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}:${map.second}`;
+				for (const p of parts){
+					if (p.type !== "literal") map[p.type] = p.value;
+				}
+				const wdMap = { Sun:0, Mon:1, Tue:2, Wed:3, Thu:4, Fri:5, Sat:6 };
+				return {
+					year: Number(map.year),
+					month: Number(map.month),
+					day: Number(map.day),
+					hour: Number(map.hour),
+					minute: Number(map.minute),
+					second: Number(map.second),
+					weekday: wdMap[map.weekday] ?? 0,
+				};
+			}
+			
+			function tzOffsetMinutes(dateUtc, timeZone){
+				const z = getZonedParts(dateUtc, timeZone);
+				const asIfUtc = Date.UTC(z.year, z.month-1, z.day, z.hour, z.minute, z.second);
+				return (asIfUtc - dateUtc.getTime()) / 60000;
+			}
+			
+			function wallToUtcDate(y, m, d, h, mi, s, timeZone){
+				const naiveUtcMs = Date.UTC(y, m-1, d, h, mi, s);
+				let guess = new Date(naiveUtcMs);
+				let off1 = tzOffsetMinutes(guess, timeZone);
+				let utcMs1 = naiveUtcMs - off1 * 60000;
+			
+				guess = new Date(utcMs1);
+				let off2 = tzOffsetMinutes(guess, timeZone);
+				let utcMs2 = naiveUtcMs - off2 * 60000;
+			
+				return new Date(utcMs2);
+			}
+			
+			function addDaysToYMD(y, m, d, days){
+				const base = new Date(Date.UTC(y, m-1, d, 0, 0, 0));
+				base.setUTCDate(base.getUTCDate() + days);
+				return { y: base.getUTCFullYear(), m: base.getUTCMonth()+1, d: base.getUTCDate() };
+			}
+			
+			function fmtInTZ(dateUtc, timeZone){
+				const z = getZonedParts(dateUtc, timeZone);
+				return `${z.year}-${pad2(z.month)}-${pad2(z.day)} ${pad2(z.hour)}:${pad2(z.minute)}:${pad2(z.second)}`;
+			}
+			
+			function fmtLocal(dateUtc){
+				if (LOCAL_TZ && LOCAL_TZ !== "Local") return fmtInTZ(dateUtc, LOCAL_TZ);
+				return `${dateUtc.getFullYear()}-${pad2(dateUtc.getMonth()+1)}-${pad2(dateUtc.getDate())} `
+					+ `${pad2(dateUtc.getHours())}:${pad2(dateUtc.getMinutes())}:${pad2(dateUtc.getSeconds())}`;
+			}
+			
+			function fmtUtc(dateUtc){
+				return `${dateUtc.getUTCFullYear()}-${pad2(dateUtc.getUTCMonth()+1)}-${pad2(dateUtc.getUTCDate())} `
+					+ `${pad2(dateUtc.getUTCHours())}:${pad2(dateUtc.getUTCMinutes())}:${pad2(dateUtc.getUTCSeconds())}`;
+			}
+			
+			function compareWallTimeToTarget(nowZ, tm){
+				if (nowZ.hour !== tm.h) return nowZ.hour < tm.h ? -1 : 1;
+				if (nowZ.minute !== tm.m) return nowZ.minute < tm.m ? -1 : 1;
+				if (nowZ.second !== tm.sec) return nowZ.second < tm.sec ? -1 : 1;
+				return 0;
+			}
+			
+			function nextDailyAnchored(nowUtc, timeObj){
+				const nowZ = getZonedParts(nowUtc, RESET_TZ);
+				let targetY = nowZ.year, targetM = nowZ.month, targetD = nowZ.day;
+			
+				if (compareWallTimeToTarget(nowZ, timeObj) >= 0){
+					const nxt = addDaysToYMD(targetY, targetM, targetD, 1);
+					targetY = nxt.y; targetM = nxt.m; targetD = nxt.d;
+				}
+			
+				return wallToUtcDate(targetY, targetM, targetD, timeObj.h, timeObj.m, timeObj.sec, RESET_TZ);
+			}
+			
+			function nextWeeklyAnchored(nowUtc, targetWeekday, timeObj){
+				const nowZ = getZonedParts(nowUtc, RESET_TZ);
+				let daysUntil = (targetWeekday - nowZ.weekday + 7) % 7;
+			
+				if (daysUntil === 0 && compareWallTimeToTarget(nowZ, timeObj) >= 0){
+					daysUntil = 7;
+				}
+			
+				const tgt = addDaysToYMD(nowZ.year, nowZ.month, nowZ.day, daysUntil);
+				return wallToUtcDate(tgt.y, tgt.m, tgt.d, timeObj.h, timeObj.m, timeObj.sec, RESET_TZ);
+			}
+			
+			
+			function recurringAnchorUtcDate(timer){
+				// Prefer explicit ISO anchor
+				if (timer?.anchorUtc){
+					const dt = new Date(timer.anchorUtc);
+					if (Number.isFinite(dt.getTime())) return dt;
+					return null;
+				}
+				// Otherwise: anchorDate + resetUtc (both interpreted in UTC)
+				const ad = String(timer?.anchorDate || "").trim();
+				const m = ad.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+				if (!m) return null;
+				const y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+				const tm = parseTime(timer?.resetUtc || "00:00:00");
+				if (!tm) return null;
+				return new Date(Date.UTC(y, mo-1, d, tm.h, tm.m, tm.sec));
 			}
 
-			function addRowTo(bodyEl, name, remainStr, colLocal, colUtc){
+			function nextRecurringUtc(nowUtc, timer){
+				const anchor = recurringAnchorUtcDate(timer);
+				if (!anchor) return null;
+				const everyDays = Number(timer?.everyDays);
+				if (!(everyDays > 0 && Number.isFinite(everyDays))) return null;
+				const stepMs = everyDays * 86400 * 1000;
+				const nowMs = nowUtc.getTime();
+				const aMs = anchor.getTime();
+				if (!Number.isFinite(nowMs) || !Number.isFinite(aMs)) return null;
+
+				if (nowMs <= aMs) return new Date(aMs);
+				const k = Math.floor((nowMs - aMs) / stepMs) + 1;
+				return new Date(aMs + k * stepMs);
+			}
+
+
+			function addRowTo(bodyEl, name, colLocal, colUtc, remainStr, trClass = ""){
 				const tr = document.createElement("tr");
+				if (trClass) tr.className = trClass;
 				tr.innerHTML = `
 					<td>${escapeHtml(name)}</td>
 					<td class="mono muted">${escapeHtml(remainStr)}</td>
@@ -154,97 +391,302 @@
 				`;
 				bodyEl.appendChild(tr);
 			}
-
-			function computeNextResetMs(nowMs, anchorMs){
-				// If anchor is in the future, next is anchor.
-				if (nowMs <= anchorMs) return anchorMs;
-
-				// Smallest k where anchor + k*cycle > now
-				const elapsed = nowMs - anchorMs;
-				const k = Math.floor(elapsed / CYCLE_MS) + 1;
-				return anchorMs + (k * CYCLE_MS);
-			}
-
-			function render(){
-				const now = new Date();
-				const nowMs = now.getTime();
-
-				nowPill.textContent = `Now: ${now.toLocaleString(undefined, { hour12:false })}`;
-				localTzPill.textContent = `Local TZ: ${LOCAL_TZ}`;
-				resetTzPill.textContent = `Reset TZ: ${RESET_TZ}`;
-
-				// Keep JSTC-style header formatting (inline code pills)
-				headerDesc.innerHTML =
-					`Resets every <code class="inline">${CYCLE_DAYS} days</code> at <code class="inline">00:00 UTC</code>.`;
-
-				shopBody.textContent = "";
-
-				const anchor = new Date(ANCHOR_UTC);
-				const anchorMs = anchor.getTime();
-
-				if (!Number.isFinite(anchorMs)){
-					addRowTo(shopBody, "Shop Reset", "CONFIG ERROR", "Invalid ANCHOR_UTC", "—");
-					shopDot.classList.add("bad");
+			
+			function setTempDotState(dotEl, hasActive, minRemaining){
+				dotEl.classList.remove("warn","bad","off");
+				if (!hasActive){
+					dotEl.classList.add("off");
 					return;
 				}
+				urgencyDot(dotEl, minRemaining);
+			}
+			
+			function parseWallDateTime(s){
+				const m = String(s||"").trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?$/);
+				if (!m) return null;
+				const y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+				const h = Number(m[4] ?? 0), mi = Number(m[5] ?? 0), sec = Number(m[6] ?? 0);
+				if (![y,mo,d,h,mi,sec].every(Number.isFinite)) return null;
+				if (mo<1||mo>12||d<1||d>31||h<0||h>23||mi<0||mi>59||sec<0||sec>59) return null;
+				return { y, mo, d, h, mi, sec };
+			}
+			
+			function tempEndUtcDate(timer){
+				if (timer?.endUtc){
+					const dt = new Date(timer.endUtc);
+					if (!Number.isFinite(dt.getTime())) return null;
+					return dt;
+				}
+			
+				const parts = parseWallDateTime(timer?.end);
+				if (!parts) return null;
+				const tz = timer?.tz || RESET_TZ;
+				return wallToUtcDate(parts.y, parts.mo, parts.d, parts.h, parts.mi, parts.sec, tz);
+			}
+			
+			function render(){
+				const nowUtc = new Date();
 
-				const nextMs = computeNextResetMs(nowMs, anchorMs);
-				const next = new Date(nextMs);
+				nowPill.textContent = `Now: ${nowUtc.toLocaleString(undefined, { hour12:false })}`;
+				localTzPill.textContent = `Local TZ: ${LOCAL_TZ}`;
+				resetTzPill.textContent = `Reset TZ: ${RESET_TZ }`;
 
-				const remainingSec = Math.max(0, Math.floor((nextMs - nowMs) / 1000));
-				urgencyDot(shopDot, remainingSec);
+				dailyBody.textContent = "";
+				weeklyBody.textContent = "";
+				recurringBody.textContent = "";
+				tempBody.textContent = "";
+				endedBody.textContent = ""; // IMPORTANT: you forgot to clear this
 
-				addRowTo(
-					shopBody,
-					"Shop Reset",
-					formatDuration(remainingSec),
-					fmtLocal(next),
-					fmtUtc(next)
-				);
+				let minDaily = Infinity;
+				let minWeekly = Infinity;
+				let minRecurring = Infinity;
+
+				let minTemp = Infinity;
+				let hasActiveTemp = false;
+
+				// Track whether we actually placed any rows into each section
+				let dailyRowCount = 0;
+						let weeklyRowCount = 0;
+
+						let recurringRowCount = 0;
+				let tempRowCount = 0;
+				let endedRowCount = 0;
+
+				const days = 0;
+				const THREE_DAYS_SEC = days * 86400;
+
+				for (const t of timers){
+					if (!t || !t.enabled) continue;
+
+					const kind = String(t.kind || "").toLowerCase();
+					const name = t.name || "Unnamed";
+
+					// -------- TEMP TIMERS --------
+					if (kind === "temp"){
+					const endUtc = tempEndUtcDate(t);
+
+					// Handle config error safely (endUtc could be null)
+					if (!endUtc){
+						// Keep config errors visible in Limited Time
+						addRowTo(tempBody, name, "CONFIG ERROR", "—", "—");
+						tempRowCount++;
+						continue;
+					}
+
+					const remainingRaw = Math.floor((endUtc.getTime() - nowUtc.getTime()) / 1000);
+
+					// Active
+					if (remainingRaw > 0){
+						const remaining = remainingRaw;
+						hasActiveTemp = true;
+						minTemp = Math.min(minTemp, remaining);
+
+						addRowTo(
+						tempBody,
+						name,
+						fmtLocal(endUtc),
+						fmtUtc(endUtc),
+						formatDuration(remaining)
+						);
+						tempRowCount++;
+						continue;
+					}
+
+					// Ended
+					const endedAgeSec = Math.abs(remainingRaw); // seconds since end
+
+					const targetBody = (endedAgeSec >= THREE_DAYS_SEC) ? endedBody : tempBody;
+					const trClass = "ended";
+
+					addRowTo(
+						targetBody,
+						name,
+						fmtLocal(endUtc),
+						fmtUtc(endUtc),
+						"Ended " + formatDuration(endedAgeSec) + " ago",
+						trClass
+					);
+
+					if (targetBody === endedBody) endedRowCount++;
+					else tempRowCount++;
+
+					continue;
+					}
+
+					// -------- RECURRING (ANCHOR-PERIOD) TIMERS --------
+				if (kind === "recurring"){
+					const nextUtc = nextRecurringUtc(nowUtc, t);
+					if (!nextUtc){
+						recurringRowCount++;
+						addRowTo(recurringBody, name, "CONFIG ERROR", "—", "—");
+						continue;
+					}
+
+					const remaining = Math.max(0, Math.floor((nextUtc.getTime() - nowUtc.getTime()) / 1000));
+					minRecurring = Math.min(minRecurring, remaining);
+					recurringRowCount++;
+
+					addRowTo(
+						recurringBody,
+						name,
+						fmtLocal(nextUtc),
+						fmtUtc(nextUtc),
+						formatDuration(remaining)
+					);
+					continue;
+				}
+
+				// -------- RECURRING TIMERS --------
+					const tm = parseTime(t.time);
+					if (!tm){
+					addRowTo(kind === "weekly" ? weeklyBody : dailyBody, name, "CONFIG ERROR", "—", "—");
+					if (kind === "weekly") weeklyRowCount++; else dailyRowCount++;
+						continue;
+					}
+
+					let nextUtcDate;
+
+					if (kind === "daily"){
+					nextUtcDate = nextDailyAnchored(nowUtc, tm);
+					} else if (kind === "weekly"){
+					const wd = Number.isFinite(t.day) ? t.day : NaN;
+					if (!(wd >= 0 && wd <= 6)){
+						addRowTo(weeklyBody, name, "CONFIG ERROR", "—", "—");
+						weeklyRowCount++;
+						continue;
+					}
+					nextUtcDate = nextWeeklyAnchored(nowUtc, wd, tm);
+					} else {
+					addRowTo(dailyBody, name, "CONFIG ERROR", "—", "—");
+					dailyRowCount++;
+						continue;
+					}
+
+					const remaining = Math.max(0, Math.floor((nextUtcDate.getTime() - nowUtc.getTime()) / 1000));
+					if (kind === "daily") minDaily = Math.min(minDaily, remaining);
+					if (kind === "weekly") minWeekly = Math.min(minWeekly, remaining);
+
+					addRowTo(
+					kind === "weekly" ? weeklyBody : dailyBody,
+					name,
+					fmtLocal(nextUtcDate),
+					fmtUtc(nextUtcDate),
+					formatDuration(remaining)
+					);
+					if (kind === "weekly") weeklyRowCount++; else dailyRowCount++;
+				}
+
+				// ---- Show/hide sections based on actual rows placed ----
+						if (dailyRowCount === 0){
+							dailySection?.setAttribute("hidden", "");
+							dailyDot?.classList.add("off");
+						} else {
+							dailySection?.removeAttribute("hidden");
+							dailyDot?.classList.remove("off");
+						}
+
+						if (weeklyRowCount === 0){
+							weeklySection?.setAttribute("hidden", "");
+							weeklyDot?.classList.add("off");
+						} else {
+							weeklySection?.removeAttribute("hidden");
+							weeklyDot?.classList.remove("off");
+						}
+
+				if (recurringRowCount === 0){
+					recurringSection?.setAttribute("hidden", "");
+					recurringDot?.classList.add("off");
+				} else {
+					recurringSection?.removeAttribute("hidden");
+					recurringDot?.classList.remove("off");
+				}
+
+				if (tempRowCount === 0){
+					tempSection?.setAttribute("hidden", "");
+					tempDot?.classList.add("off");
+				} else {
+					tempSection?.removeAttribute("hidden");
+					tempDot?.classList.remove("off");
+				}
+
+				if (endedRowCount === 0){
+					endedSection?.setAttribute("hidden", "");
+					endedDot?.classList.add("off");
+				} else {
+					endedSection?.removeAttribute("hidden");
+					endedDot?.classList.remove("off");
+				}
+
+				// ---- Dots ----
+				if (minDaily === Infinity) minDaily = 999999999;
+				if (minWeekly === Infinity) minWeekly = 999999999;
+				if (minRecurring === Infinity) minRecurring = 999999999;
+
+				urgencyDot(dailyDot, minDaily);
+				urgencyDot(weeklyDot, minWeekly);
+				urgencyDot(recurringDot, minRecurring);
+
+				// Temp dot: only warn/bad when there are ACTIVE temp timers
+				if (!hasActiveTemp){
+					tempDot.classList.remove("warn","bad");
+				} else {
+					urgencyDot(tempDot, minTemp);
+				}
 
 				if (window.__syncFades) window.__syncFades();
 			}
 
+			/**
+			 * Startup
+			 */
+			
 			render();
 			setInterval(render, 1000);
 		</script>
-
 		<script type="module">
-			import {
-				attachFadeToScroller,
-				autoMarkActiveTab,
-				initAppSettings,
-				startOrbBackgroundFromSettings,
-				_VERSION
-			} from "./assets/site.js";
-
+			import { attachFadeToScroller, autoMarkActiveTab, initAppSettings, startOrbBackgroundFromSettings, _VERSION, hardReload } from "./assets/site.js";
 			const syncs = [];
-
+			
 			document.getElementById("versionCode").textContent = `v${_VERSION}`;
-
+			document.getElementById("hardRefreshBtn")?.addEventListener("click", hardReload);
+			
 			// Apply saved settings (theme + orbs toggles, etc.)
 			initAppSettings();
-
-			// Fades: table + toolbar (toolbar wrapper clips on iOS)
+			
 			syncs.push(attachFadeToScroller(
-				document.getElementById("shopScroll"),
-				document.getElementById("shopFade")
+				document.getElementById("dailyScroll"),
+				document.getElementById("dailyFade")
 			));
-
+			
+			syncs.push(attachFadeToScroller(
+				document.getElementById("weeklyScroll"),
+				document.getElementById("weeklyFade")
+			));
+			
+			syncs.push(attachFadeToScroller(
+				document.getElementById("recurringScroll"),
+				document.getElementById("recurringFade")
+			));
+			
+			syncs.push(attachFadeToScroller(
+				document.getElementById("tempScroll"),
+				document.getElementById("tempFade")
+			));
+			
 			syncs.push(attachFadeToScroller(
 				document.getElementById("toolbarScroll"),
-				document.getElementById("toolbarFade")
+				document.getElementById("toolbarScroll")
 			));
-
+			
 			window.__syncFades = () => {
 				for (const fn of syncs) if (typeof fn === "function") fn();
 			};
-
+			
 			window.__syncFades();
-
+			
 			// Use saved orb settings, but keep page-specific sizing defaults
-			startOrbBackgroundFromSettings({ spawnEveryMs: 1600, sizeMin: 640, sizeMax: 1800 });
-
+			startOrbBackgroundFromSettings({ spawnEveryMs: 1600, sizeMin: 340, sizeMax: 720 });
+			
 			autoMarkActiveTab("timers");
 		</script>
 	</body>

@@ -128,7 +128,7 @@ button:active {
 	gap: 14px;
 
 	/* auto-wrap tiles, pack them next to each other */
-	grid-template-columns: 2fr;
+	grid-template-columns: 1fr;
 
 	/* center the whole "set" of columns */
 	justify-content: center;
@@ -139,7 +139,7 @@ button:active {
 
 @media (max-width: 1100px) {
 	.grid {
-		grid-template-columns: 2fr;
+		grid-template-columns: 1fr;
 	}
 }
 
@@ -607,8 +607,8 @@ header>#toolbarFade {
 }
 
 /* Inner scroller stays purely a scroller */
-.fadeWrap>.tableScroll,
-.fadeWrap>.hScroll {
+.fadeWrap > .tableScroll,
+.fadeWrap > .hScroll {
 	position: relative;
 }
 
