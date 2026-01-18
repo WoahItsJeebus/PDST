@@ -4,7 +4,6 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 		<meta name="theme-color" content="#0b0f17">
-
 		<!-- iOS Add-to-Home-Screen / standalone -->
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -18,29 +17,32 @@
 	<body>
 		<div class="wrap">
 			<header>
-				<div style="text-align: center;">
+				<div>
 					<h1>PDST — PLS DONATE Shop Timer</h1>
 					<div class="sub" id="headerDesc">
-						Resets every <code class="inline">3 days</code> at <code class="inline">00:00 UTC</code>.
+						Resets every <code class="inline">4 days</code> at <code class="inline">00:00 UTC</code>.
+					</div>
+				</div>
+
+				<!-- Toolbar: scrolls on narrow screens + fades only when overflow exists -->
+				<!-- IMPORTANT: wrapper must clip the fade on iOS (prevents the right-side "flap") -->
+				<div class="fadeWrap fadeScroll" id="toolbarFade">
+					<div class="toolbar hScroll" id="toolbarScroll">
+						<div class="pill" id="nowPill">Now: —</div>
+						<div class="pill" id="localTzPill">Local TZ: —</div>
+						<div class="pill" id="resetTzPill">Reset TZ: —</div>
 					</div>
 				</div>
 			</header>
 
-			<div id="toolbarFade" class="fadeScroll" style="margin-bottom:14px;">
-				<div class="toolbar hScroll" id="toolbarScroll">
-					<div class="pill" id="nowPill">Now: —</div>
-					<div class="pill" id="localTzPill">Local TZ: —</div>
-					<div class="pill" id="resetTzPill">Reset TZ: —</div>
-				</div>
-			</div>
-
 			<div class="grid">
-				<section class="card span2" style="width:100%;">
+				<section class="card">
 					<div class="head">
 						<div class="title"><span class="statusDot" id="shopDot"></span>Shop Reset</div>
 						<div class="tag">COUNTDOWN</div>
 					</div>
 
+					<!-- Table scroll + fades only when overflow exists -->
 					<div class="fadeWrap fadeScroll" id="shopFade">
 						<div class="tableScroll" id="shopScroll">
 							<table>
@@ -63,8 +65,8 @@
 				<code class="inline" id="versionCode">v—</code>
 			</div>
 
-			<div class="tabsBar" style="width:100%;">
-				<nav class="tabs" style="align-items:center;">
+			<div class="tabsBar">
+				<nav class="tabs" style="align-items: center;">
 					<a class="tabBtn active" data-tab="timers" href="./"><span class="tabDot"></span> Timers</a>
 					<a class="tabBtn" data-tab="about" href="./pages/about/"><span class="tabDot"></span> About</a>
 					<a class="tabBtn" data-tab="settings" href="./pages/settings/"><span class="tabDot"></span> Settings</a>
@@ -73,22 +75,28 @@
 		</div>
 
 		<script>
-			// PDST reset rules
+			// ===== PDST Reset Rules =====
+			// Resets every N days at 00:00 UTC.
 			const RESET_TZ = "UTC";
-			const CYCLE_DAYS = 4; // change to 3 when confirmed
+			const CYCLE_DAYS = 4;                 // change to 3 when confirmed
 			const CYCLE_MS = CYCLE_DAYS * 86400 * 1000;
 
-			// Replace with a known real reset moment at 00:00:00Z
+			// Anchor must be a known real reset at 00:00:00Z
+			// Example: "2026-01-14T00:00:00Z"
 			const ANCHOR_UTC = "2026-01-14T00:00:00Z";
 
+			// Local TZ
 			const LOCAL_TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || "Local";
 
 			// refs
 			const headerDesc = document.getElementById("headerDesc");
+
 			const shopBody = document.getElementById("shopBody");
+
 			const nowPill = document.getElementById("nowPill");
 			const localTzPill = document.getElementById("localTzPill");
 			const resetTzPill = document.getElementById("resetTzPill");
+
 			const shopDot = document.getElementById("shopDot");
 
 			function pad2(n){ return String(n).padStart(2, "0"); }
@@ -136,21 +144,24 @@
 				return `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}:${map.second}`;
 			}
 
-			function addRow(bodyEl, name, remainingStr, nextLocalStr, nextUtcStr){
+			function addRowTo(bodyEl, name, remainStr, colLocal, colUtc){
 				const tr = document.createElement("tr");
 				tr.innerHTML = `
 					<td>${escapeHtml(name)}</td>
-					<td class="mono muted">${escapeHtml(remainingStr)}</td>
-					<td class="mono muted">${escapeHtml(nextLocalStr)}</td>
-					<!-- <td class="mono muted">${escapeHtml(nextUtcStr)}</td> -->
+					<td class="mono muted">${escapeHtml(remainStr)}</td>
+					<td class="mono muted">${escapeHtml(colLocal)}</td>
+					<!-- <td class="mono muted">${escapeHtml(colUtc)}</td> -->
 				`;
 				bodyEl.appendChild(tr);
 			}
 
-			function computeNextReset(nowMs, anchorMs){
+			function computeNextResetMs(nowMs, anchorMs){
+				// If anchor is in the future, next is anchor.
 				if (nowMs <= anchorMs) return anchorMs;
+
+				// Smallest k where anchor + k*cycle > now
 				const elapsed = nowMs - anchorMs;
-				const k = Math.floor(elapsed / CYCLE_MS) + 1; // smallest k where anchor+k*cycle > now
+				const k = Math.floor(elapsed / CYCLE_MS) + 1;
 				return anchorMs + (k * CYCLE_MS);
 			}
 
@@ -161,7 +172,10 @@
 				nowPill.textContent = `Now: ${now.toLocaleString(undefined, { hour12:false })}`;
 				localTzPill.textContent = `Local TZ: ${LOCAL_TZ}`;
 				resetTzPill.textContent = `Reset TZ: ${RESET_TZ}`;
-				headerDesc.innerHTML = `Resets every <code class="inline">${CYCLE_DAYS} days</code> at <code class="inline">00:00 UTC</code>.`;
+
+				// Keep JSTC-style header formatting (inline code pills)
+				headerDesc.innerHTML =
+					`Resets every <code class="inline">${CYCLE_DAYS} days</code> at <code class="inline">00:00 UTC</code>.`;
 
 				shopBody.textContent = "";
 
@@ -169,18 +183,18 @@
 				const anchorMs = anchor.getTime();
 
 				if (!Number.isFinite(anchorMs)){
-					addRow(shopBody, "Shop Reset", "CONFIG ERROR", "Invalid ANCHOR_UTC", "—");
+					addRowTo(shopBody, "Shop Reset", "CONFIG ERROR", "Invalid ANCHOR_UTC", "—");
 					shopDot.classList.add("bad");
 					return;
 				}
 
-				const nextMs = computeNextReset(nowMs, anchorMs);
+				const nextMs = computeNextResetMs(nowMs, anchorMs);
 				const next = new Date(nextMs);
 
 				const remainingSec = Math.max(0, Math.floor((nextMs - nowMs) / 1000));
 				urgencyDot(shopDot, remainingSec);
 
-				addRow(
+				addRowTo(
 					shopBody,
 					"Shop Reset",
 					formatDuration(remainingSec),
@@ -204,19 +218,19 @@
 				_VERSION
 			} from "./assets/site.js";
 
-			document.getElementById("versionCode").textContent = `v${_VERSION}`;
-
-			initAppSettings();
-
 			const syncs = [];
 
-			// Table fade wrapper (correct: scroller + wrapper)
+			document.getElementById("versionCode").textContent = `v${_VERSION}`;
+
+			// Apply saved settings (theme + orbs toggles, etc.)
+			initAppSettings();
+
+			// Fades: table + toolbar (toolbar wrapper clips on iOS)
 			syncs.push(attachFadeToScroller(
 				document.getElementById("shopScroll"),
 				document.getElementById("shopFade")
 			));
 
-			// Toolbar fade wrapper (correct: scroller + wrapper)
 			syncs.push(attachFadeToScroller(
 				document.getElementById("toolbarScroll"),
 				document.getElementById("toolbarFade")
@@ -225,8 +239,10 @@
 			window.__syncFades = () => {
 				for (const fn of syncs) if (typeof fn === "function") fn();
 			};
+
 			window.__syncFades();
 
+			// Use saved orb settings, but keep page-specific sizing defaults
 			startOrbBackgroundFromSettings({ spawnEveryMs: 1600, sizeMin: 640, sizeMax: 1800 });
 
 			autoMarkActiveTab("timers");
